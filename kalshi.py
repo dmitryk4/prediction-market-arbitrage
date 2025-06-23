@@ -1,46 +1,45 @@
 import requests
-from datetime import datetime, timezone
 
 # ----- Kalshi API Client -----
 class KalshiAPI:
-    def __init__(self, base_url=None):
+    def __init__(self, base_url=None, page_size=100, max_pages=10000):
         base = base_url or "https://api.elections.kalshi.com"
         if not base.endswith("/trade-api/v2"):
             base = base.rstrip("/") + "/trade-api/v2"
         self.base_url = base
+        self.page_size = page_size
+        self.max_pages = max_pages
 
-    def get_markets(self):
-        """Fetch all Kalshi markets from the elections API."""
-        try:
-            resp = requests.get(f"{self.base_url}/markets", timeout=10)
-            resp.raise_for_status()
-            return resp.json().get("markets", [])
-        except Exception as e:
-            print(f"[KalshiAPI] Error fetching markets: {e}")
-            return []
+    def get_markets_page(self, page=1):
+        """
+        Fetch a single page of markets.
+        """
+        params = {"page": page, "limit": self.page_size}
+        resp = requests.get(f"{self.base_url}/markets", params=params, timeout=10)
+        resp.raise_for_status()
+        data = resp.json()
+        return data.get("markets", data)
 
-    def get_current_markets(self):
-        """Return only currently trading/open Kalshi markets, debugging raw statuses."""
-        all_markets = self.get_markets()
-        # Debug raw status samples
-        print("\nSample Kalshi market status fields (first 5):")
-        for m in all_markets[:5]:
-            print(f" ticker={m.get('ticker')}, status={m.get('status')}, state={m.get('state')}, active={m.get('active')}")
-
-        # Use both status and active flag for filtering
-        current = [
-            m for m in all_markets 
-            if str(m.get("status", "")).lower() in ("trading", "open", "active")
-            or m.get("active", False) is True
-        ]
-        return current
+    def get_all_markets(self):
+        """
+        Fetch *all* markets by paging, up to max_pages.
+        """
+        all_markets = []
+        for page in range(1, self.max_pages + 1):
+            page_markets = self.get_markets_page(page)
+            if not page_markets:
+                print(f"No more markets at page {page}, stopping.")
+                break
+            all_markets.extend(page_markets)
+            print(f"Fetched page {page}, {len(page_markets)} markets")
+        return all_markets
 
 # ----- Standalone Execution -----
 if __name__ == "__main__":
     client = KalshiAPI()
-    current_markets = client.get_current_markets()
-    print(f"\nFetched {len(current_markets)} current Kalshi markets:")
-    for m in current_markets:
+    all_markets = client.get_all_markets()
+    print(f"\nTotal Kalshi markets fetched: {len(all_markets)}\n")
+    for m in all_markets:
         ticker = m.get("ticker")
-        title = m.get("title") or m.get("question") or "<no title>"
+        title  = m.get("title") or m.get("question") or "<no title>"
         print(f" - {ticker}: {title}")
