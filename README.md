@@ -1,4 +1,4 @@
-## Prediction Market Arbitrage Detector (LLM‑assisted) – MVP Skeleton
+## Prediction Market Arbitrage Detector (LLM‑assisted) 
 
 This repository contains a **Python-only skeleton** for an MVP that detects **potential arbitrage opportunities** between prediction markets (e.g., Kalshi and Polymarket), using:
 
