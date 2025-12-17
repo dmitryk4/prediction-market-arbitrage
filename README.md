@@ -14,7 +14,7 @@ At this stage, the skeleton **does not call any real APIs** and contains **no tr
 - **`llm_client.py`** – LLM interface abstraction (no provider-specific implementation yet).
 - **`filters.py`** – Deterministic pre-filtering and validation skeleton.
 - **`arb_math.py`** – Arbitrage detection math skeleton.
-- **`kalshi_api.py` / `polymarket_api.py`** – **Stubs only** for future API integrations.
+- **`kalshi_api.py` / `polymarket_api.py`** – Authenticated REST clients that normalize markets for the pipeline.
 - **`pipeline.py`** – Orchestrates the full flow from fetching markets to emitting opportunities.
 - **`main.py`** – Simple CLI entry point that runs the pipeline and prints JSON/console output.
 – **`server.py`** – FastAPI server exposing `/api/opportunities` for the frontend.
@@ -24,7 +24,7 @@ Next.js frontend is under **`next-frontend/`**:
 - **`next-frontend/app/page.tsx`** – UI with a “Run detection” button and results list.
 - **`next-frontend/app/layout.tsx`**, `app/globals.css`, `next.config.mjs`, etc. – Standard Next.js app router setup.
 
-### Running the skeleton
+### Running the pipeline locally
 
 Create and activate a virtual environment, then install dependencies:
 
@@ -32,13 +32,21 @@ Create and activate a virtual environment, then install dependencies:
 pip install -r requirements.txt
 ```
 
-Run the (currently stubbed) pipeline:
+Export API keys (or set them in `config.py`):
+
+```bash
+export KALSHI_API_KEY="your_kalshi_key"
+export POLYMARKET_API_KEY="your_polymarket_key"
+```
+
+Run the pipeline:
 
 ```bash
 python main.py
 ```
 
-You should see placeholder output indicating that the APIs and LLM integration still need to be implemented.
+This will call both platforms' REST APIs with retries, filter to active binary markets, and print any detected arbitrage
+opportunities as JSON. Exceptions include clear messages for auth/rate limit/network issues.
 
 ### Running the web app locally (backend + Next.js frontend)
 
