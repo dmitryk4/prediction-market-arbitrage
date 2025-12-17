@@ -5,7 +5,7 @@ This repository contains a **Python-only skeleton** for an MVP that detects **po
 - **Deterministic rules** for pre-filtering and validation
 - An **LLM** for semantic candidate matching (no pricing, no trade suggestions)
 
-At this stage, the skeleton **does not call any real APIs** and contains **no trading/execution logic**.
+
 
 ### High-level architecture
 
