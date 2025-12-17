@@ -10,18 +10,10 @@ def main() -> None:
 
     - Runs the arbitrage detection pipeline.
     - Prints JSON output of detected opportunities (if any).
-    - In the current skeleton, API calls are stubbed and will raise
-      NotImplementedError until implemented.
+    - Requires Kalshi and Polymarket API keys set in the environment or
+      `config.py`.
     """
-    try:
-        opportunities = run_pipeline()
-    except NotImplementedError as e:
-        print(
-            "Pipeline is wired up, but one or more components "
-            "are not implemented yet:"
-        )
-        print(f"  -> {e}")
-        return
+    opportunities = run_pipeline()
 
     data: Any = opportunities_to_dicts(opportunities)
     print(json.dumps(data, indent=2, default=str))
